@@ -4,6 +4,7 @@ import { Hotel } from '../hotel-list/hotel.model';
 import {HttpClientService} from "../../service/http-client.service";
 import {TranslateService} from "@ngx-translate/core";
 import {HotelService} from "../../service/hotel.service";
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-home',
@@ -15,15 +16,15 @@ export class HomeComponent implements OnInit {
   public allCategories: Category[] = [];
   public categories: Category[] = [];
   public searchText: string = '';
-  public isAdmin: boolean = false;
+  public isAdmin: boolean  = this.cookieService.get("isAdmin") === "true";
 
-  constructor(private HttpClientService: HttpClientService, public translate: TranslateService, private hotelService: HotelService) {
+  constructor(private HttpClientService: HttpClientService, public translate: TranslateService, private hotelService: HotelService, private cookieService: CookieService) {
 
   }
 
   ngOnInit(): void {
-    this.translate.setDefaultLang('bs');
-    this.translate.use('bs');
+    //this.translate.setDefaultLang('bs');
+    //this.translate.use('bs');
     this.initializeAllCategories();
   }
 
@@ -43,17 +44,17 @@ export class HomeComponent implements OnInit {
         this.categories[5].name = this.translate.instant('CAMPING');
       });
 
-      console.log('kategorije"', this.categories);
     });
   }
 
   ngOnChanges(text: any){
-    console.log(text);
+
   }
 
   searchHeaderEvent($event) {
     this.searchText = $event;
     if(this.searchText ==='' || typeof this.searchText === 'undefined'){
+      this.initializeAllCategories();
       this.categories = this.allCategories;
       return;
     }
@@ -63,7 +64,6 @@ export class HomeComponent implements OnInit {
       x.hotels = x.hotels.filter(y => y.name.toLowerCase().includes(this.searchText));
       return x.hotels.length > 0;
     });
-    this.initializeAllCategories();
   }
   loginHeaderEvent($event) {
     this.isAdmin = $event;

@@ -12,8 +12,7 @@ import java.util.List;
 
 @Repository
 public interface HotelRepository extends CrudRepository<Hotel, Long> {
-  Hotel findByName(String name);
-
+  List <Hotel> findByName(String name);
 
   List <Hotel> findByPrice(int price);
 
@@ -56,6 +55,14 @@ public interface HotelRepository extends CrudRepository<Hotel, Long> {
     nativeQuery = true)
   Integer findLastId();
 
+  @Transactional
+  @Modifying
+  @Query(
+    value = "UPDATE swt.hotel SET name=:name, description=:description, category_id=:category, price=:price, rate=:rating, stars=:stars, city=:city, activity=:activity, other_filters=:otherFilters WHERE id=:id",
+    nativeQuery = true)
+  void  editHotel(@Param("id") int id, @Param("name") String name, @Param("description") String description, @Param("category") int category, @Param("price") int price, @Param("rating")int rating, @Param("stars")int stars,
+                        @Param("city")String city, @Param("activity")String activity, @Param("otherFilters")String otherFilters);
+
 
   @Transactional
   @Modifying
@@ -71,17 +78,53 @@ public interface HotelRepository extends CrudRepository<Hotel, Long> {
   List <Hotel> findByCategoryId(@Param("categoryId")int categoryId);
 
   @Query("FROM Hotel WHERE price >= :minPrice AND price <= :maxPrice AND rate >= :minRating AND rate <= :maxRating " +
-    "AND stars = :stars AND activity = :activity AND city IN (:locations) AND otherFilters = :otherFilters")
+    "AND stars >= :stars AND activity = :activity AND city IN (:locations) AND otherFilters = :otherFilters")
     List <Hotel> applyFilters(@Param("minPrice") int minPrice, @Param("maxPrice")int maxPrice, @Param("minRating")int minRating,
                             @Param("maxRating") int maxRating,
                             @Param("stars") int stars, @Param("activity")String activity, @Param("locations")List<String> locations, @Param("otherFilters") String otherFilters);
   @Query("FROM Hotel WHERE activity = :activity")
   List <Hotel> findHotelsByActivities(@Param("activity")String activity);
 
+  @Query("FROM Hotel WHERE price >= :minPrice AND price <= :maxPrice AND rate >= :minRating AND rate <= :maxRating " +
+    "AND stars >= :stars AND city IN (:locations) AND otherFilters = :otherFilters")
+  List <Hotel> applyFiltersWithoutActivity(@Param("minPrice") int minPrice, @Param("maxPrice")int maxPrice, @Param("minRating")int minRating,
+                            @Param("maxRating") int maxRating,
+                            @Param("stars") int stars, @Param("locations")List<String> locations, @Param("otherFilters") String otherFilters);
+
+  @Query("FROM Hotel WHERE price >= :minPrice AND price <= :maxPrice AND rate >= :minRating AND rate <= :maxRating " +
+    "AND stars >= :stars AND activity = :activity AND city IN (:locations)")
+  List <Hotel> applyFiltersWithoutOtherFilters(@Param("minPrice") int minPrice, @Param("maxPrice")int maxPrice, @Param("minRating")int minRating,
+                            @Param("maxRating") int maxRating,
+                            @Param("stars") int stars, @Param("activity")String activity, @Param("locations")List<String> locations);
+
+  @Query("FROM Hotel WHERE price >= :minPrice AND price <= :maxPrice AND rate >= :minRating AND rate <= :maxRating " +
+    "AND stars >= :stars AND city IN (:locations)")
+  List <Hotel> applyFiltersWithoutActivityandOtherFilters(@Param("minPrice") int minPrice, @Param("maxPrice")int maxPrice, @Param("minRating")int minRating,
+                            @Param("maxRating") int maxRating,
+                            @Param("stars") int stars, @Param("locations")List<String> locations);
+
+  @Query(value = "select city from swt.hotel", nativeQuery = true)
+  List<String> getAllCities();
+
+  @Query(value="SELECT max(price) FROM hotel",
+    nativeQuery = true)
+  int getMaxPrice();
+
+  @Query(value="SELECT max(rate) FROM hotel",
+    nativeQuery = true)
+  int getMaxRating();
+
   @Query(
     value = "SELECT * FROM hotel WHERE id = :hotelId",
     nativeQuery = true)
   Hotel findHotelById(@Param("hotelId")int hotelId);
+
+  @Transactional
+  @Modifying
+  @Query(
+    value = "DELETE  FROM hotel WHERE name = :hotel_name",
+    nativeQuery = true)
+  void deleteHotel(@Param("hotel_name") String hotel_name);
 
   @Override
   List<Hotel> findAll();
@@ -115,4 +158,11 @@ public interface HotelRepository extends CrudRepository<Hotel, Long> {
     value = "SELECT * FROM hotel WHERE category_id = ?1 ORDER BY stars ASC limit 5",
     nativeQuery = true)
   List<Hotel> getHotelOrderedByStarsDESC(int category_id);
+
+  @Transactional
+  @Modifying
+  @Query(
+    value = "UPDATE swt.hotel SET swt.hotel.rate = :rate, rating_num = rating_num + 1 WHERE id = :id",
+    nativeQuery = true)
+  void changeRating(@Param("rate") int rate, @Param("id") long id);
 }

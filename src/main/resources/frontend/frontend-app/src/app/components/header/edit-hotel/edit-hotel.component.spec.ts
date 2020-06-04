@@ -1,30 +1,32 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClient, HttpHandler } from '@angular/common/http';
+import {TranslateModule} from "@ngx-translate/core";
+import { EditHotelComponent } from './edit-hotel.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {TranslateModule} from "@ngx-translate/core";
-import { RatingCommentComponent } from './rating-comment.component';
 
-describe('RatingCommentComponent', () => {
-  let component: RatingCommentComponent;
-  let fixture: ComponentFixture<RatingCommentComponent>;
+describe('EditHotelComponent', () => {
+  let component: EditHotelComponent;
+  let fixture: ComponentFixture<EditHotelComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, HttpClientTestingModule, TranslateModule.forRoot()],
-      declarations: [ RatingCommentComponent ]
+      declarations: [ EditHotelComponent ],
+      providers: [
+        HttpClient,
+        HttpHandler      ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RatingCommentComponent);
+    fixture = TestBed.createComponent(EditHotelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
-  const spy = spyOnProperty(component, 'ratingComment').and.returnValue(
-   {name: 'test', comment: 'comment', rating: 5});
-
+    expect(component).toBeTruthy();
   });
 });

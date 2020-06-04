@@ -3,9 +3,15 @@
     <div *ngIf="hotel" class="row hotel-item">
        <div class="col-md-12 col-lg-12">
             <div class="row">
-                <div class="col-10 name-text font-size-26">
+                <div class="col-4 name-text font-size-26">
                     {{ hotel.name }}
                 </div>
+                <div class="col-6">
+                    <button [disabled]=false *ngIf="isAdmin" color="grey"  mat-raised-button href="#"  (click)="editHotel(hotel)" >
+                      {{'EDIT' | translate }}</button>&nbsp;
+                      <button [disabled]=false *ngIf="isAdmin" color="primary"  mat-raised-button (click)="show()">
+                        {{'DELETE' | translate }}</button>
+                  </div>
                 <div class="col-2">
                     <ngb-rating [rate]="hotel.stars" [readonly]="true" [max]="5" class="float-right">
                         <ng-template let-fill="fill">
@@ -15,6 +21,7 @@
                         </ng-template>
                     </ngb-rating>
                 </div>
+                
             </div>
         </div>
         <div class="col-md-12 col-lg-12">
@@ -35,7 +42,7 @@
                     </div>
                 </div>
                 <div class="col-2">
-                    <p class="price float-right">{{'PRICE' | translate }}: {{ hotel.price }}</p>
+                    <p class="price float-right">{{'PRICE' | translate }}: {{ hotel.price }} €</p>
                 </div>
             </div>
             <div class="row">
@@ -88,7 +95,7 @@
                     <form [formGroup]="commentForm" autocomplete="off" novalidate>
                         <mat-card-content>
                             <mat-form-field class="full-width">
-                                <input matInput type="text" placeholder="{{'NAME' | translate}}" formControlName="name">
+                                <input matInput type="text" placeholder="{{'USERNAME' | translate}}" formControlName="name">
                             </mat-form-field>
                             <br>
                             <mat-form-field class="full-width">
@@ -97,11 +104,11 @@
                             </mat-form-field>
                             <br>
                             <mat-form-field class="full-width">
-                                <textarea  matInput type="text" placeholder="{{'NAME' | translate}}" formControlName="comment"></textarea>
+                                <textarea  matInput type="text" placeholder="{{'COMMENT' | translate}}" formControlName="comment"></textarea>
                             </mat-form-field>
                             <br>
                         </mat-card-content>
-                        <button [disabled]="false" mat-raised-button (click)="insertNewComment()">
+                        <button [disabled]="false" mat-raised-button id = "submitButton" (click)="insertNewComment()">
                           {{'SEND RATING' | translate }}</button>
                     </form>
                 </mat-card>
@@ -119,5 +126,26 @@
             </div>
         </div>
     </div>
-  </div>
+        <div class="col-md-12 col-lg-12">
+        <div class="row">
+          <div class="col-10 name-text font-size-26">
+          </div>
+        </div>
+      </div>
+      <div [style.display]="showDeleteConfirmationDialog ? 'block' : 'none'" [style.background]="showDeleteConfirmationDialog ? 'linear-gradient(45deg, black, transparent)' : 'none'" class="modal" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="myModalLabel">{{'DELETE CHECK' | translate}}</h4>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal" (click) = "deleteHotel()">{{'YES' | translate}}</button>
+              <button type="button" class="btn btn-dark" data-dismiss="modal" (click) = "hide()">{{'NO' | translate}}</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
 </div>

@@ -9,6 +9,7 @@ import { FiltersModel } from './filters.model';
 import {TranslateService} from "@ngx-translate/core";
 import {InjectorService} from "../../service/injector.service";
 import {Hotel} from "../hotel-list/hotel.model";
+import {CookieService} from "ngx-cookie-service";
 
 
 @Component({
@@ -22,7 +23,7 @@ export class FiltersComponent {
   @Output()
   filteredCategories: EventEmitter<Category[]> = new EventEmitter();
   @Input()
-  public isAdmin: boolean;
+  public isAdmin: boolean = this.cookieService.get("isAdmin") === "true" ? true : false;
   private selectedItems: Map<string, Array<any>>;
   private _dropdownSettings: IDropdownSettings;
   public activities: any;
@@ -51,16 +52,15 @@ export class FiltersComponent {
 
   sortHotelsByPrice($event) {
     this.HttpClientService.getHotelWithinPriceRange(this.value).subscribe(hotels => {
-      console.log(hotels)
+
       //this.HotelService.updateHotelList(hotels);
     })
   }
 
   constructor(private HttpClientService: HttpClientService, private HotelService: HotelService,
-              private readonly translateService: TranslateService) {
+              private readonly translateService: TranslateService, private cookieService: CookieService) {
 
     this.instantiateDropdownSettings();
-    console.log('kurac', this.translateService.instant('FITNESS'));
     this.HotelService.translateAsObs.subscribe(trigger => {
       if(trigger) {
         this.activities = [this.translateService.instant('FITNESS'), this.translateService.instant('RUNNING'), this.translateService.instant('OPEN BAR')];
@@ -122,14 +122,15 @@ export class FiltersComponent {
       this.currentlySelectedLocations,
       this.otherFilters);
 
+    // create list of booleans in order to send it into controller
+    // if not true, filters can be undefined OR false/unchecked
+    var allFiltersIntoList = [this.otherFilters.parkingFilter === true ? true : false, this.otherFilters.restaurantFilter  === true ? true : false,
+      this.otherFilters.petsAllowedFilter  === true ? true : false, this.otherFilters.nonsmokingRoomsFilter  === true ? true : false,
+      this.otherFilters.swimmingPoolFilter  === true ? true : false, this.otherFilters.beachfrontFilter  === true ? true : false,
+      this.otherFilters.airConditioningFilter  === true ? true : false, this.otherFilters.freeWifiFilter  === true ? true : false,
+      this.otherFilters.saunaFilter  === true ? true : false, this.otherFilters.fitnessFilter  === true ? true : false]
 
-    //create list of booleans in order to send it into controller
-    var allFiltersIntoList = [this.otherFilters.parkingFilter === undefined ? false : true, this.otherFilters.restaurantFilter  === undefined ? false : true,
-      this.otherFilters.petsAllowedFilter  === undefined ? false : true, this.otherFilters.nonsmokingRoomsFilter  === undefined ? false : true,
-      this.otherFilters.swimmingPoolFilter  === undefined ? false : true, this.otherFilters.beachfrontFilter  === undefined ? false : true,
-      this.otherFilters.airConditioningFilter  === undefined ? false : true, this.otherFilters.freeWifiFilter  === undefined ? false : true,
-      this.otherFilters.saunaFilter  === undefined ? false : true, this.otherFilters.fitnessFilter  === undefined ? false : true]
-
+    var areFiltersReset = allFiltersIntoList.every(x => !x);
 
     this.HttpClientService.getFilteredHotels(this.minPrice, this.maxPrice, this.minRating, this.maxRating,
       this.starsFilter,
@@ -137,9 +138,14 @@ export class FiltersComponent {
       this.currentlySelectedLocations, allFiltersIntoList).subscribe( categories => {
         var listOfCategories = new Array<Category>();
         categories.forEach(category => {
-           var newCategory = Category.MapCategory(category);
-           if(newCategory.hotels !== null && newCategory.hotels.length > 0)
+          var newCategory = Category.MapCategory(category);
+          if(newCategory.hotels !== null && newCategory.hotels.length > 0){
+            // reset to initial display of categories
+            if(areFiltersReset) {
+              newCategory.hotels = newCategory.hotels.slice(0,5);
+            }
             listOfCategories.push(newCategory);
+          }
         });
         this.filteredCategories.emit(listOfCategories);
     });

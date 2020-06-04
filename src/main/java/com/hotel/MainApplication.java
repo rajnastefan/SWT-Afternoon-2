@@ -47,7 +47,6 @@ public class MainApplication implements  CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    System.out.println("Starting main application");
 
     this.hs = new HotelService(hr);
     this.cs = new CategoryService(cr);
@@ -57,8 +56,7 @@ public class MainApplication implements  CommandLineRunner {
     this.cc = new CategoryController(cs);
 
     //fill_comments();
-    System.out.println(cms.getCommentsByHotelID(10).get(0).getComm_text());
-    System.out.println(cms.getCommentsByHotelID(10).get(1).getComm_text());
+
   //  fill_db();
 
     int minPrice = 20;
@@ -73,10 +71,6 @@ public class MainApplication implements  CommandLineRunner {
     lc.add("Athens");
     String otfil ="1101010010";
     List<Hotel> hotels = this.hs.hr.applyFilters(minPrice,maxPrice,minRating,maxRating,stars,ac,lc,otfil);
-
-
-//    System.out.println("test insert into database");
-     // this.hs.hr.insertNewHotels(2025, "name", "description", maxPrice, maxRating, stars, ac, lc.get(0), otfil, "https://traffickcam.com/images/2017/4/20160304_233556_62JBML.jpg");
 
   }
 
@@ -172,11 +166,5 @@ public class MainApplication implements  CommandLineRunner {
       }
     }
 
-
-
-//    Category category1 = new Category("lifehotel");
-//    cr.save(category1);
-//    Hotel hotel1 = new Hotel("Graz Hotel", 5, 100, "Graz", "best hotel", "no image", 5,category1);
-//    hr.save(hotel1);
   }
 }
